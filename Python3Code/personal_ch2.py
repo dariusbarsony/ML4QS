@@ -42,11 +42,11 @@ for milliseconds_per_instance in GRANULARITIES:
 
     # We add the accelerometer data (continuous numerical measurements) of the phone and the smartwatch
     # and aggregate the values per timestep by averaging the values
-    dataset.add_numerical_dataset('accelerometer_long_darius.csv', 'Time (s)', ['Linear Acceleration x (m/s^2)','Linear Acceleration y (m/s^2)','Linear Acceleration z (m/s^2)', 'Absolute acceleration (m/s^2)'], 'avg', 'acc_phone')
+    dataset.add_numerical_dataset('accelerometer_long_darius.csv', 'Time', ["x","y","z","abs"], 'avg', 'acc_')
 
     # We add the gyroscope data (continuous numerical measurements) of the phone and the smartwatch
     # and aggregate the values per timestep by averaging the values
-    dataset.add_numerical_dataset('gyroscope_long_darius.csv', 'Time (s)', ['Gyroscope x (rad/s)','Gyroscope y (rad/s)','Gyroscope z (rad/s)', 'Absolute (rad/s)'], 'avg', 'gyr_phone')
+    dataset.add_numerical_dataset('gyroscope_long_darius.csv', 'Time', ["x","y","z","abs"], 'avg', 'gyr_')
 
     # We add the labels provided by the users. These are categorical events that might overlap. We add them
     # as binary attributes (i.e. add a one to the attribute representing the specific value for the label if it
@@ -55,9 +55,8 @@ for milliseconds_per_instance in GRANULARITIES:
     # dataset.add_event_dataset('labels.csv', 'label_start', 'label_end', 'label', 'binary')
 
     # We add the audio and location data and aggregate by averaging
-    dataset.add_numerical_dataset('audio_darius.csv', 'Time (s)', ['Recording (a.u.)'], 'avg', 'audio_')
-    dataset.add_numerical_dataset('location_long_darius.csv', 'Time (s)', ["Latitude (°)","Longitude (°)","Altitude (m)","Altitude WGS84 (m)","Speed (m/s)","Direction (°)","Distance (km)",
-        "Horizontal Accuracy (m)","Vertical Accuracy (m)","Satellites"], 'avg', 'acc_phone')
+    dataset.add_numerical_dataset('audio_darius.csv', 'Time', ['rec'], 'avg', 'audio_')
+    dataset.add_numerical_dataset('location_long_darius.csv', 'Time', ["lat","long","alt","alt_WGS84","speed","dir","dist","horizontal_acc","vertical_acc","sattelites"], 'avg', 'loc_')
 
     # Get the resulting pandas data table
     dataset = dataset.data_table
@@ -66,10 +65,10 @@ for milliseconds_per_instance in GRANULARITIES:
     DataViz = VisualizeDataset(__file__)
 
     # Boxplot
-    DataViz.plot_dataset_boxplot(dataset, ['acc_phone_x','acc_phone_y','acc_phone_z'])
+    DataViz.plot_dataset_boxplot(dataset, ['acc_x','acc_y','acc_z','acc_abs','gyr_x','gyr_y','gyr_z', 'gyr_abs'])
 
     # Plot all data
-    DataViz.plot_dataset(dataset, ['acc_', 'gyr_', 'audio', 'location', 'label'],
+    DataViz.plot_dataset(dataset, ['acc_', 'gyr_', 'audio_', 'loc_', 'label'],
                                   ['like', 'like', 'like', 'like', 'like', 'like', 'like','like'],
                                   ['line', 'line', 'line', 'line', 'line', 'line', 'points', 'points'])
 
