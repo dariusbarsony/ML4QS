@@ -1,0 +1,2 @@
+version,device name,recording time,platform,appVersion,device id,sensors,sampleRateMs
+3,iPhone SE 2,2022-06-19_19-10-10,ios,1.8.2,fdc70da2-c2ad-4575-8ebd-d94beaaac885,Accelerometer|Gravity|Gyroscope|Orientation|Magnetometer|Location|Annotation,10|10|10|10|10|0|

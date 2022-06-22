@@ -1,2 +1,6 @@
 sensor_type,device_type,label,label_start,label_start_datetime,label_end,label_end_datetime
-interval_label,smartphone,,1454956132985999872.000,08/02/2016 10:28:52,1454956366574000128.000,08/02/2016 10:32:46
+interval_label,smartphone,Walking/Standing still,2.187245833E-2,08/02/2016 10:28:52,7.283519000E0,08/02/2016 10:32:46
+interval_label,smartphone,Walking/Standing still,7.283519000E0,08/02/2016 10:33:13,1.456513750E1,08/02/2016 10:36:18
+interval_label,smartphone,Sitting,1.456513750E1,08/02/2016 10:36:48,2.124824933E1,08/02/2016 10:40:13
+interval_label,smartphone,Walking,2.124824933E1,08/02/2016 10:41:34,2.902857346E1,08/02/2016 10:44:52
+interval_label,smartphone,Sitting,2.902857346E1,08/02/2016 10:46:11,3.640990183E1,08/02/2016 10:51:10

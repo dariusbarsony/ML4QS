@@ -21,9 +21,13 @@ from Chapter4.FrequencyAbstraction import FourierTransformation
 from Chapter4.TextAbstraction import TextAbstraction
 
 # Read the result from the previous chapter, and make sure the index is of the type datetime.
-DATA_PATH = Path('./intermediate_datafiles/')
-DATASET_FNAME = 'chapter3_result_final.csv'
-RESULT_FNAME = 'chapter4_result.csv'
+# DATA_PATH = Path('./intermediate_datafiles/')
+# DATASET_FNAME = 'chapter3_result_final.csv'
+# RESULT_FNAME = 'chapter4_result.csv'
+
+DATA_PATH = Path('./results/')
+DATASET_FNAME = 'processed_ch3.csv'
+RESULT_FNAME = 'processed_ch4.csv'
 
 def print_flags():
     """
@@ -44,8 +48,6 @@ def main():
     except IOError as e:
         print('File not found, try to run previous crowdsignals scripts first!')
         raise e
-
-    
 
     # Let us create our visualization class again.
     DataViz = VisualizeDataset(__file__)
@@ -77,37 +79,37 @@ def main():
        
         fs = float(1000)/milliseconds_per_instance
         ws = int(float(10000)/milliseconds_per_instance)
-        dataset = FreqAbs.abstract_frequency(dataset, ['acc_phone_x'], ws, fs)
+        dataset = FreqAbs.abstract_frequency(dataset, ['mag_watch_x'], ws, fs)
         # Spectral analysis.
-        DataViz.plot_dataset(dataset, ['acc_phone_x_max_freq', 'acc_phone_x_freq_weighted', 'acc_phone_x_pse', 'label'], ['like', 'like', 'like', 'like'], ['line', 'line', 'line','points'])
+        DataViz.plot_dataset(dataset, ['mag_watch_x_max_freq', 'mag_watch_x_freq_weighted', 'mag_watch_x_pse', 'mag_watch_x_skewness', 'label'], ['like', 'like', 'like','like', 'like'], ['line', 'line', 'line','line','points'])
         print("--- %s seconds ---" % (time.time() - start_time))
   
     if FLAGS.mode == 'final':
         
-
         ws = int(float(0.5*60000)/milliseconds_per_instance)
         fs = float(1000)/milliseconds_per_instance
 
-        selected_predictor_cols = [c for c in dataset.columns if not 'label' in c]
+        selected_predictor_cols = [c for c in dataset.columns if not 'text' in c]
 
         dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'mean')
         dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'std')
+
         # TODO: Add your own aggregation methods here
         
-        DataViz.plot_dataset(dataset, ['acc_phone_x', 'gyr_phone_x', 'hr_watch_rate', 'light_phone_lux', 'mag_phone_x', 'press_phone_', 'pca_1', 'label'], ['like', 'like', 'like', 'like', 'like', 'like', 'like','like'], ['line', 'line', 'line', 'line', 'line', 'line', 'line', 'points'])
-
+        # DataViz.plot_dataset(dataset, ['acc_phone_x', 'gyr_phone_x', 'hr_watch_rate', 'light_phone_lux', 'mag_phone_x', 'press_phone_', 'pca_1', 'label'], ['like', 'like', 'like', 'like', 'like', 'like', 'like','like'], ['line', 'line', 'line', 'line', 'line', 'line', 'line', 'points'])
+        # DataViz.plot_dataset(dataset, ['acc_x', 'gyr_x', 'hr_watch_rate', 'light_phone_lux', 'mag_phone_x', 'press_phone_', 'pca_1', 'label'], ['like', 'like', 'like', 'like', 'like', 'like', 'like','like'], ['line', 'line', 'line', 'line', 'line', 'line', 'line', 'points'])
      
         CatAbs = CategoricalAbstraction()
         
-        dataset = CatAbs.abstract_categorical(dataset, ['label'], ['like'], 0.03, int(float(5*60000)/milliseconds_per_instance), 2)
+        dataset = CatAbs.abstract_categorical(dataset, ['textwalking'], ['like'], 0.03, int(float(5*60000)/milliseconds_per_instance), 2)
 
+        # periodic_predictor_cols = ['acc_phone_x'
+        #                             ,'acc_phone_y','acc_phone_z',
+        #                             'acc_watch_x','acc_watch_y','acc_watch_z','gyr_phone_x','gyr_phone_y',
+        #                         'gyr_phone_z','gyr_watch_x','gyr_watch_y','gyr_watch_z','mag_phone_x','mag_phone_y','mag_phone_z',
+        #                         'mag_watch_x','mag_watch_y','mag_watch_z']
 
-        periodic_predictor_cols = ['acc_phone_x'
-                                    ,'acc_phone_y','acc_phone_z',
-                                    'acc_watch_x','acc_watch_y','acc_watch_z','gyr_phone_x','gyr_phone_y',
-                                'gyr_phone_z','gyr_watch_x','gyr_watch_y','gyr_watch_z','mag_phone_x','mag_phone_y','mag_phone_z',
-                                'mag_watch_x','mag_watch_y','mag_watch_z']
-
+        periodic_predictor_cols = ['acc_x','acc_y','acc_z','gyr_x','gyr_y','gyr_z','magn_x','magn_y','magn_z']
 
         
         dataset = FreqAbs.abstract_frequency(copy.deepcopy(dataset), periodic_predictor_cols, int(float(10000)/milliseconds_per_instance), fs)
@@ -123,7 +125,7 @@ def main():
 
         dataset.to_csv(DATA_PATH / RESULT_FNAME)
 
-        DataViz.plot_dataset(dataset, ['acc_phone_x', 'gyr_phone_x', 'hr_watch_rate', 'light_phone_lux', 'mag_phone_x', 'press_phone_', 'pca_1', 'label'], ['like', 'like', 'like', 'like', 'like', 'like', 'like','like'], ['line', 'line', 'line', 'line', 'line', 'line', 'line', 'points'])
+        # DataViz.plot_dataset(dataset, ['acc_phone_x', 'gyr_phone_x', 'hr_watch_rate', 'light_phone_lux', 'mag_phone_x', 'press_phone_', 'pca_1', 'label'], ['like', 'like', 'like', 'like', 'like', 'like', 'like','like'], ['line', 'line', 'line', 'line', 'line', 'line', 'line', 'points'])
         print("--- %s seconds ---" % (time.time() - start_time))
   
 if __name__ == '__main__':

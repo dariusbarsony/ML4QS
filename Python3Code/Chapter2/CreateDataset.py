@@ -7,6 +7,7 @@
 #                                                            #
 ##############################################################
 
+from tracemalloc import start
 import pandas as pd
 import numpy as np
 import re
@@ -45,6 +46,8 @@ class CreateDataset:
         print(f'Reading data from {file}')
         dataset = pd.read_csv(self.base_dir / file, skipinitialspace=True)
 
+        dataset[timestamp_col] = dataset[timestamp_col].apply(lambda x: x * 1000000000)
+
         # Convert timestamps to dates
         dataset[timestamp_col] = pd.to_datetime(dataset[timestamp_col])
 
@@ -81,7 +84,11 @@ class CreateDataset:
     # 'aggregation' can be 'sum' or 'binary'.
     def add_event_dataset(self, file, start_timestamp_col, end_timestamp_col, value_col, aggregation='sum'):
         print(f'Reading data from {file}')
+
         dataset = pd.read_csv(self.base_dir / file)
+
+        dataset[start_timestamp_col] = dataset[start_timestamp_col].apply(lambda x: x * 1000000000)
+        dataset[end_timestamp_col] = dataset[end_timestamp_col].apply(lambda x: x * 1000000000)
 
         # Convert timestamps to datetime.
         dataset[start_timestamp_col] = pd.to_datetime(dataset[start_timestamp_col])
@@ -126,3 +133,93 @@ class CreateDataset:
             relevant_dataset_cols.extend([col for col in cols if id in col])
 
         return relevant_dataset_cols
+    
+    def split_dataset(self, file, identifier_col, cols_to_keep): 
+
+        print(f'Reading data from {file}')
+
+        dataset = pd.read_csv(self.base_dir / file)
+        unique_vals = dataset._type.unique()
+        
+        for v in unique_vals:
+            
+            _dataset = dataset.loc[dataset[identifier_col] == v]
+
+            if 'TypeIdentifier' in v:
+                result_filename = v.split('TypeIdentifier')[1]
+            else:
+                result_filename = v.split('Type')[1]
+
+            RESULT_FNAME = result_filename + '.csv' 
+            _dataset[cols_to_keep].to_csv(self.base_dir / RESULT_FNAME, index=False)
+
+    def add_zero_measurements(self, file, start_timestamp_col, end_timestamp_col, value_col):
+
+        print(f'Reading data from {file}')
+
+        dataset = pd.read_csv(self.base_dir / file)
+
+        last_datapoint = dataset[end_timestamp_col][dataset.shape[0] - 1]
+        i = 0
+        
+        while dataset[end_timestamp_col][i+1] != last_datapoint:
+
+            df2 = pd.DataFrame(np.insert(dataset.values, i+1, 
+                values=[dataset[end_timestamp_col][i], 
+                    dataset[start_timestamp_col][i+1], 0], axis=0))
+
+            df2.columns = dataset.columns
+            dataset = df2
+
+            i += 2
+
+        result_filename = 'zeros_imputed_'+ file
+        dataset.to_csv(self.base_dir / result_filename, index=False)
+
+    def difference_col(self, file, start_timestamp_col, end_timestamp_col, value_col):
+
+        print(f'Reading data from {file}')
+
+        dataset = pd.read_csv(self.base_dir / file)
+
+        dataset[end_timestamp_col] = pd.to_datetime(dataset[end_timestamp_col])
+        dataset[start_timestamp_col] = pd.to_datetime(dataset[start_timestamp_col])
+
+        dataset['difference'] = dataset[end_timestamp_col] - dataset[start_timestamp_col]
+
+        result_filename = 'spaced_'+ file
+        dataset.to_csv(self.base_dir / result_filename, index=False)
+
+    # assumes seconds
+    def equal_spacing(self, file, start_timestamp_col, end_timestamp_col, difference_col,
+         value_col, granularity=1):
+
+        print(f'Reading data from {file}')
+        dataset = pd.read_csv(self.base_dir / file)
+
+        last_month = dataset.tail(19)
+
+        interval = (pd.to_datetime(last_month[end_timestamp_col].iloc[0]) - pd.to_datetime(last_month[start_timestamp_col].iloc[0])).seconds
+
+        average = last_month[value_col].iloc[0] /  interval
+        start = last_month[start_timestamp_col].iloc[0]
+        
+        second = datetime.timedelta(seconds=1)
+        
+        # data_sub1 = data.loc[data['x4'] >= 2]
+
+        values = [start, start + second, average, second]
+        print(values)
+
+        # for i in range():
+
+        spaced_last_month = pd.DataFrame( np.insert(last_month.values, 0, 
+                values=values, axis=0) )
+
+        spaced_last_month.columns = last_month.columns
+        last_month = spaced_last_month
+
+        print(last_month)
+
+        # i += 2
+

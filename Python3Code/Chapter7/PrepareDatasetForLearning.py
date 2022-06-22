@@ -57,6 +57,8 @@ class PrepareDatasetForLearning:
         if matching == 'like':
             dataset = self.assign_label(dataset, class_labels)
             class_labels = self.class_col
+            print(class_labels)
+            
         elif len(class_labels) == 1:
             class_labels = class_labels[0]
 
