@@ -94,7 +94,7 @@ DataViz.plot_xy(x=[range(1, N_FORWARD_SELECTION+1)], y=[ordered_scores],
                 xlabel='number of features', ylabel='accuracy')
 
 
-# based on python2 features, slightly different. 
+# based on python2 features, slightly different.
 selected_features = ['acc_phone_y_freq_0.0_Hz_ws_40', 'press_phone_pressure_temp_mean_ws_120', 'gyr_phone_x_temp_std_ws_120',
                      'mag_watch_y_pse', 'mag_phone_z_max_freq', 'gyr_watch_y_freq_weighted', 'gyr_phone_y_freq_1.0_Hz_ws_40',
                      'acc_phone_x_freq_1.9_Hz_ws_40', 'mag_watch_z_freq_0.9_Hz_ws_40', 'acc_watch_y_freq_0.5_Hz_ws_40']
@@ -109,7 +109,7 @@ start = time.time()
 reg_parameters = [0.0001, 0.001, 0.01, 0.1, 1, 10]
 performance_training = []
 performance_test = []
-## Due to runtime constraints we run the experiment 3 times, yet if you want even more robust data one should increase the repetitions. 
+## Due to runtime constraints we run the experiment 3 times, yet if you want even more robust data one should increase the repetitions.
 N_REPEATS_NN = 3
 
 
@@ -185,23 +185,23 @@ for i in range(0, len(possible_feature_sets)):
         print("Training RandomForest run {} / {} ... ".format(repeat, N_KCV_REPEATS, feature_names[i]))
         performance_tr_nn += eval.accuracy(train_y, class_train_y)
         performance_te_nn += eval.accuracy(test_y, class_test_y)
-        
+
         class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.random_forest(
             selected_train_X, train_y, selected_test_X, gridsearch=True
         )
-        
+
         performance_tr_rf += eval.accuracy(train_y, class_train_y)
         performance_te_rf += eval.accuracy(test_y, class_test_y)
 
         print("Training SVM run {} / {}, featureset: {}... ".format(repeat, N_KCV_REPEATS, feature_names[i]))
-      
+
         class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.support_vector_machine_with_kernel(
             selected_train_X, train_y, selected_test_X, gridsearch=True
         )
         performance_tr_svm += eval.accuracy(train_y, class_train_y)
         performance_te_svm += eval.accuracy(test_y, class_test_y)
 
-    
+
     overall_performance_tr_nn = performance_tr_nn/N_KCV_REPEATS
     overall_performance_te_nn = performance_te_nn/N_KCV_REPEATS
     overall_performance_tr_rf = performance_tr_rf/N_KCV_REPEATS
@@ -222,14 +222,14 @@ for i in range(0, len(possible_feature_sets)):
     class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.decision_tree(
         selected_train_X, train_y, selected_test_X, gridsearch=True
     )
-    
+
     performance_tr_dt = eval.accuracy(train_y, class_train_y)
     performance_te_dt = eval.accuracy(test_y, class_test_y)
     print("Training Naive Bayes run 1/1 featureset {}:".format(feature_names[i]))
     class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.naive_bayes(
         selected_train_X, train_y, selected_test_X
     )
-   
+
     performance_tr_nb = eval.accuracy(train_y, class_train_y)
     performance_te_nb = eval.accuracy(test_y, class_test_y)
 

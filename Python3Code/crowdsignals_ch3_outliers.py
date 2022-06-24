@@ -54,7 +54,7 @@ def main():
     # Create the outlier classes.
     OutlierDistr = DistributionBasedOutlierDetection()
     OutlierDist = DistanceBasedOutlierDetection()
-    #chose one of the outlier methods: chauvenet, mixture, distance or LOF via the argument parser at the bottom of this page. 
+    #chose one of the outlier methods: chauvenet, mixture, distance or LOF via the argument parser at the bottom of this page.
 
     if FLAGS.mode == 'chauvenet':
 
@@ -132,7 +132,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--C', type=float, default=2,
                         help="Chauvenet: C parameter")
-   
+
     parser.add_argument('--K', type=int, default=5,
                         help="Local Outlier Factor:  K is the number of neighboring points considered")
 

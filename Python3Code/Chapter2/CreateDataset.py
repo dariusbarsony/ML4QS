@@ -7,6 +7,8 @@
 #                                                            #
 ##############################################################
 
+from os import times
+from tracemalloc import start
 import pandas as pd
 import numpy as np
 import re
@@ -35,6 +37,7 @@ class CreateDataset:
         if not prefix == '':
             for i in range(0, len(c)):
                 c[i] = str(prefix) + str(c[i])
+
         timestamps = self.create_timestamps(start_time, end_time)
 
         #Specify the datatype here to prevent an issue
@@ -42,12 +45,21 @@ class CreateDataset:
 
     # Add numerical data, we assume timestamps in the form of nanoseconds from the epoch
     def add_numerical_dataset(self, file, timestamp_col, value_cols, aggregation='avg', prefix=''):
+
         print(f'Reading data from {file}')
         dataset = pd.read_csv(self.base_dir / file, skipinitialspace=True)
+        
+        # remove all from new window column that are yes
+        dataset = dataset[dataset['new_window'] == 'no']
 
+        # merge timestamp values
+        dataset[timestamp_col] = dataset["raw_timestamp_part_1"].astype(str) + dataset["raw_timestamp_part_2"].astype(str).str[:3] + '000000'
+
+        dataset[timestamp_col] = pd.to_numeric(dataset[timestamp_col])
+        
         # Convert timestamps to dates
         dataset[timestamp_col] = pd.to_datetime(dataset[timestamp_col])
-
+        
         # Create a table based on the times found in the dataset
         if self.data_table is None:
             self.create_dataset(min(dataset[timestamp_col]), max(dataset[timestamp_col]), value_cols, prefix)
@@ -81,6 +93,7 @@ class CreateDataset:
     # 'aggregation' can be 'sum' or 'binary'.
     def add_event_dataset(self, file, start_timestamp_col, end_timestamp_col, value_col, aggregation='sum'):
         print(f'Reading data from {file}')
+
         dataset = pd.read_csv(self.base_dir / file)
 
         # Convert timestamps to datetime.
@@ -126,3 +139,73 @@ class CreateDataset:
             relevant_dataset_cols.extend([col for col in cols if id in col])
 
         return relevant_dataset_cols
+    
+    def split_dataset(self, file, identifier_col): 
+
+        print(f'Reading data from {file}')
+
+        dataset = pd.read_csv(self.base_dir / file)
+        unique_vals = dataset.user_name.unique()
+        
+        for v in unique_vals:
+
+            _dataset = dataset.loc[dataset[identifier_col] == v]
+            RESULT_FNAME = str(v) + '.csv' 
+            _dataset.to_csv(self.base_dir / RESULT_FNAME, index=False)
+
+    def add_zero_measurements(self, file, start_timestamp_col, end_timestamp_col, value_col):
+
+        print(f'Reading data from {file}')
+
+        dataset = pd.read_csv(self.base_dir / file)
+
+        last_datapoint = dataset[end_timestamp_col][dataset.shape[0] - 1]
+        i = 0
+        
+        while dataset[end_timestamp_col][i+1] != last_datapoint:
+
+            df2 = pd.DataFrame(np.insert(dataset.values, i+1, 
+                values=[dataset[end_timestamp_col][i], 
+                    dataset[start_timestamp_col][i+1], 0], axis=0))
+
+            df2.columns = dataset.columns
+            dataset = df2
+
+            i += 2
+
+        result_filename = 'zeros_imputed_'+ file
+        dataset.to_csv(self.base_dir / result_filename, index=False)
+
+    def difference_col(self, file, start_timestamp_col, end_timestamp_col, value_col):
+
+        print(f'Reading data from {file}')
+
+        dataset = pd.read_csv(self.base_dir / file)
+
+        dataset[end_timestamp_col] = pd.to_datetime(dataset[end_timestamp_col])
+        dataset[start_timestamp_col] = pd.to_datetime(dataset[start_timestamp_col])
+
+        dataset['difference'] = dataset[end_timestamp_col] - dataset[start_timestamp_col]
+
+        result_filename = 'spaced_'+ file
+        dataset.to_csv(self.base_dir / result_filename, index=False)
+
+    # assumes seconds
+    def create_label_file(self, file, date, microseconds, classe):
+
+        print(f'Reading data from {file}')
+        dataset = pd.read_csv(self.base_dir / file)
+
+        dataset['timestamps'] = dataset[date].astype(str) + dataset[microseconds].astype(str).str[:3] + '000000'
+
+        dataset['timestamps'] = pd.to_numeric(dataset['timestamps'])
+
+        labels = pd.DataFrame(columns=['label_start', 'label_end', 'label'], dtype=int)
+
+        for label in dataset[classe].unique():
+            labels.loc[len(labels.index)] = [dataset[dataset[classe] == label]['timestamps'].iloc[0], 
+                dataset[dataset[classe] == label]['timestamps'].tail(1).iloc[0], label]
+        
+        labels.to_csv(self.base_dir / 'labels.csv', index=False)
+            
+
