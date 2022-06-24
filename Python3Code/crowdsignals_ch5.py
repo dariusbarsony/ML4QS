@@ -59,12 +59,9 @@ def main():
         print('===== kmeans clustering =====')
         for k in k_values:
             print(f'k = {k}')
-            
-            # dataset_cluster = clusteringNH.k_means_over_instances(copy.deepcopy(
-            #     dataset), ['acc_phone_x', 'acc_phone_y', 'acc_phone_z'], k, 'default', 20, 10)
 
             dataset_cluster = clusteringNH.k_means_over_instances(copy.deepcopy(
-                dataset), ['magn_x', 'magn_y', 'magn_z'], k, 'default', 20, 10)
+                dataset), ['accel_belt_x','accel_belt_y','accel_belt_z'], k, 'default', 20, 10)
 
             silhouette_score = dataset_cluster['silhouette'].mean()
             print(f'silhouette = {silhouette_score}')

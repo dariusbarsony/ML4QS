@@ -18,9 +18,9 @@ from pathlib import Path
 import argparse
 
 # Set up file names and locations.
-DATA_PATH = Path('./intermediate_datafiles/')
-DATASET_FNAME = 'chapter2_result.csv'
-RESULT_FNAME = 'processed_ch3_outliers.csv'
+DATA_PATH = Path('./FinalAssignment/')
+DATASET_FNAME = 'ch2_result.csv'
+RESULT_FNAME = 'ch3_result_outliers.csv'
 
 def print_flags():
     """

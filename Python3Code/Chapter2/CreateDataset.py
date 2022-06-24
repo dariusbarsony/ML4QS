@@ -7,6 +7,7 @@
 #                                                            #
 ##############################################################
 
+from os import times
 from tracemalloc import start
 import pandas as pd
 import numpy as np
@@ -36,6 +37,7 @@ class CreateDataset:
         if not prefix == '':
             for i in range(0, len(c)):
                 c[i] = str(prefix) + str(c[i])
+
         timestamps = self.create_timestamps(start_time, end_time)
 
         #Specify the datatype here to prevent an issue
@@ -43,14 +45,23 @@ class CreateDataset:
 
     # Add numerical data, we assume timestamps in the form of nanoseconds from the epoch
     def add_numerical_dataset(self, file, timestamp_col, value_cols, aggregation='avg', prefix=''):
+
         print(f'Reading data from {file}')
         dataset = pd.read_csv(self.base_dir / file, skipinitialspace=True)
+        
+        # remove all from new window column that are yes
+        dataset = dataset[dataset['new_window'] == 'no']
 
-        dataset[timestamp_col] = dataset[timestamp_col].apply(lambda x: x * 1000000000)
+        # merge timestamp values
+        dataset[timestamp_col] = dataset["raw_timestamp_part_1"].astype(str) + dataset["raw_timestamp_part_2"].astype(str).str[:3] + '000000'
 
+        dataset[timestamp_col] = pd.to_numeric(dataset[timestamp_col])
+        
         # Convert timestamps to dates
         dataset[timestamp_col] = pd.to_datetime(dataset[timestamp_col])
 
+        dataset = dataset.sort_values(by=timestamp_col, ascending=True)
+        
         # Create a table based on the times found in the dataset
         if self.data_table is None:
             self.create_dataset(min(dataset[timestamp_col]), max(dataset[timestamp_col]), value_cols, prefix)
@@ -86,9 +97,6 @@ class CreateDataset:
         print(f'Reading data from {file}')
 
         dataset = pd.read_csv(self.base_dir / file)
-
-        dataset[start_timestamp_col] = dataset[start_timestamp_col].apply(lambda x: x * 1000000000)
-        dataset[end_timestamp_col] = dataset[end_timestamp_col].apply(lambda x: x * 1000000000)
 
         # Convert timestamps to datetime.
         dataset[start_timestamp_col] = pd.to_datetime(dataset[start_timestamp_col])
@@ -134,24 +142,18 @@ class CreateDataset:
 
         return relevant_dataset_cols
     
-    def split_dataset(self, file, identifier_col, cols_to_keep): 
+    def split_dataset(self, file, identifier_col): 
 
         print(f'Reading data from {file}')
 
         dataset = pd.read_csv(self.base_dir / file)
-        unique_vals = dataset._type.unique()
+        unique_vals = dataset.user_name.unique()
         
         for v in unique_vals:
-            
+
             _dataset = dataset.loc[dataset[identifier_col] == v]
-
-            if 'TypeIdentifier' in v:
-                result_filename = v.split('TypeIdentifier')[1]
-            else:
-                result_filename = v.split('Type')[1]
-
-            RESULT_FNAME = result_filename + '.csv' 
-            _dataset[cols_to_keep].to_csv(self.base_dir / RESULT_FNAME, index=False)
+            RESULT_FNAME = str(v) + '.csv' 
+            _dataset.to_csv(self.base_dir / RESULT_FNAME, index=False)
 
     def add_zero_measurements(self, file, start_timestamp_col, end_timestamp_col, value_col):
 
@@ -191,35 +193,23 @@ class CreateDataset:
         dataset.to_csv(self.base_dir / result_filename, index=False)
 
     # assumes seconds
-    def equal_spacing(self, file, start_timestamp_col, end_timestamp_col, difference_col,
-         value_col, granularity=1):
+    def create_label_file(self, file, date, microseconds, classe):
 
         print(f'Reading data from {file}')
         dataset = pd.read_csv(self.base_dir / file)
 
-        last_month = dataset.tail(19)
+        dataset['timestamps'] = dataset[date].astype(str) + dataset[microseconds].astype(str).str[:3] + '000000'
 
-        interval = (pd.to_datetime(last_month[end_timestamp_col].iloc[0]) - pd.to_datetime(last_month[start_timestamp_col].iloc[0])).seconds
+        dataset['timestamps'] = pd.to_numeric(dataset['timestamps'])
 
-        average = last_month[value_col].iloc[0] /  interval
-        start = last_month[start_timestamp_col].iloc[0]
+        dataset = dataset.sort_values(by='timestamps', ascending=True)
+
+        labels = pd.DataFrame(columns=['label_start', 'label_end', 'label'], dtype=int)
+
+        for label in dataset[classe].unique():
+            labels.loc[len(labels.index)] = [dataset[dataset[classe] == label]['timestamps'].iloc[0], 
+                dataset[dataset[classe] == label]['timestamps'].tail(1).iloc[0], label]
         
-        second = datetime.timedelta(seconds=1)
-        
-        # data_sub1 = data.loc[data['x4'] >= 2]
-
-        values = [start, start + second, average, second]
-        print(values)
-
-        # for i in range():
-
-        spaced_last_month = pd.DataFrame( np.insert(last_month.values, 0, 
-                values=values, axis=0) )
-
-        spaced_last_month.columns = last_month.columns
-        last_month = spaced_last_month
-
-        print(last_month)
-
-        # i += 2
+        labels.to_csv(self.base_dir / 'labels.csv', index=False)
+            
 
