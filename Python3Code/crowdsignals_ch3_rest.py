@@ -21,11 +21,10 @@ from Chapter3.DataTransformation import PrincipalComponentAnalysis
 from Chapter3.ImputationMissingValues import ImputationMissingValues
 from Chapter3.KalmanFilters import KalmanFilters
 
-# Set up the file names and locations.
-DATA_PATH = Path('./intermediate_datafiles/')    
-DATASET_FNAME = 'chapter3_result_outliers.csv'
-RESULT_FNAME = 'chapter3_result_final.csv'
-ORIG_DATASET_FNAME = 'chapter2_result.csv'
+DATA_PATH = Path('./FinalAssignment/')    
+DATASET_FNAME = 'ch3_result_outliers.csv'
+RESULT_FNAME = 'ch3_result.csv'
+ORIG_DATASET_FNAME = 'ch2_result.csv'
 
 def print_flags():
     """
@@ -53,6 +52,7 @@ def main():
     # Compute the number of milliseconds covered by an instance based on the first two rows
     milliseconds_per_instance = (
         dataset.index[1] - dataset.index[0]).microseconds/1000
+
 
     MisVal = ImputationMissingValues()
     LowPass = LowPassFilter()
@@ -97,11 +97,13 @@ def main():
         # Determine the sampling frequency.
         fs = float(1000)/milliseconds_per_instance
         cutoff = 1.5
+
         # Let us study acc_phone_x:
         new_dataset = LowPass.low_pass_filter(copy.deepcopy(
-            dataset), 'acc_phone_x', fs, cutoff, order=10)
+            dataset), 'acc_x', fs, cutoff, order=10)
+
         DataViz.plot_dataset(new_dataset.iloc[int(0.4*len(new_dataset.index)):int(0.43*len(new_dataset.index)), :],
-                             ['acc_phone_x', 'acc_phone_x_lowpass'], ['exact', 'exact'], ['line', 'line'])
+                             ['acc_x', 'acc_x_lowpass'], ['exact', 'exact'], ['line', 'line'])
 
     elif FLAGS.mode == 'PCA':
 
@@ -135,15 +137,14 @@ def main():
         # Now, for the final version. 
         # We first start with imputation by interpolation
        
-        for col in [c for c in dataset.columns if not 'label' in c]:
+        for col in [c for c in dataset.columns if not 'text' in c]:
             dataset = MisVal.impute_interpolate(dataset, col)
 
         # And now let us include all LOWPASS measurements that have a form of periodicity (and filter them):
-        periodic_measurements = ['acc_phone_x', 'acc_phone_y', 'acc_phone_z', 'acc_watch_x', 'acc_watch_y', 'acc_watch_z', 'gyr_phone_x', 'gyr_phone_y',
-                                 'gyr_phone_z', 'gyr_watch_x', 'gyr_watch_y', 'gyr_watch_z', 'mag_phone_x', 'mag_phone_y', 'mag_phone_z', 'mag_watch_x',
-                                 'mag_watch_y', 'mag_watch_z']
+        periodic_measurements = ['num_window', 'roll_belt', 'pitch_forearm', 'yaw_belt', 'magnet_dumbbell_z',
+             'pitch_belt', 'magnet_dumbbell_z', 'roll_forearm', 'accel_dumbbell_y', 'roll_dumbbell', 'accel_dumbbell_y', 
+                'accel_belt_x','accel_belt_y','accel_belt_z']
 
-        
         # Let us apply a lowpass filter and reduce the importance of the data above 1.5 Hz
 
         # Determine the sampling frequency.
@@ -157,7 +158,6 @@ def main():
             del dataset[col + '_lowpass']
 
         # We used the optimal found parameter n_pcs = 7, to apply PCA to the final dataset
-       
         selected_predictor_cols = [c for c in dataset.columns if (not ('label' in c)) and (not (c == 'hr_watch_rate'))]
         
         n_pcs = 7
@@ -165,13 +165,11 @@ def main():
         dataset = PCA.apply_pca(copy.deepcopy(dataset), selected_predictor_cols, n_pcs)
 
         # And the overall final dataset:
-        DataViz.plot_dataset(dataset, ['acc_', 'gyr_', 'hr_watch_rate', 'light_phone_lux', 'mag_', 'press_phone_', 'pca_', 'label'],
-                             ['like', 'like', 'like', 'like', 'like',
-                                 'like', 'like', 'like', 'like'],
-                             ['line', 'line', 'line', 'line', 'line', 'line', 'line', 'points', 'points'])
+        DataViz.plot_dataset(dataset, ['num_window', 'roll_belt', 'pitch_forearm', 'pca_','accel_belt_y', 'label'],
+                             ['like', 'like', 'like', 'like', 'like', 'like'],
+                             ['line', 'line', 'line', 'line','line', 'points'])
 
         # Store the final outcome.
-
         dataset.to_csv(DATA_PATH / RESULT_FNAME)
 
 

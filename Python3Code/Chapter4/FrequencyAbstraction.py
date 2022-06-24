@@ -17,6 +17,7 @@ class FourierTransformation:
     def __init__(self):
         self.temp_list = []
         self.freqs = None
+        self.entropy = None
 
     # Find the amplitudes of the different frequencies using a fast fourier transformation. Here,
     # the sampling rate expresses
@@ -25,6 +26,7 @@ class FourierTransformation:
     def find_fft_transformation(self, data):
         # Create the transformation, this includes the amplitudes of both the real
         # and imaginary part.
+
         # print(data.shape)
         transformation = np.fft.rfft(data, len(data))
         # real
@@ -35,9 +37,15 @@ class FourierTransformation:
         freq_weigthed = float(np.sum(self.freqs * real_ampl)) / np.sum(real_ampl)
 
         # pse
-
         PSD = np.divide(np.square(real_ampl), float(len(real_ampl)))
         PSD_pdf = np.divide(PSD, np.sum(PSD))
+
+        # skewness
+        SKEWNESS = np.mean( ( ( real_ampl - np.mean(real_ampl) ) / np.std(real_ampl) ) ** 3)
+        
+        # entropy
+        c_i = self.freqs / np.sum(self.freqs)
+        self.entropy = c_i * np.log(c_i)
 
         # Make sure there are no zeros.
         if np.count_nonzero(PSD_pdf) == PSD_pdf.size:
@@ -47,6 +55,8 @@ class FourierTransformation:
 
         real_ampl = np.insert(real_ampl, 0, max_freq)
         real_ampl = np.insert(real_ampl, 0, freq_weigthed)
+        real_ampl = np.insert(real_ampl, 0, SKEWNESS)
+
         row = np.insert(real_ampl, 0, pse)
 
         self.temp_list.append(row)
@@ -59,9 +69,13 @@ class FourierTransformation:
 
         for col in columns:
             collist = []
+
             # prepare column names
             collist.append(col + '_max_freq')
             collist.append(col + '_freq_weighted')
+
+            # new metrics
+            collist.append(col + '_skewness')
             collist.append(col + '_pse')
             
             collist = collist + [col + '_freq_' +
@@ -79,12 +93,10 @@ class FourierTransformation:
             frequencies = np.pad(np.array(self.temp_list), ((40, 0), (0, 0)),
                         'constant', constant_values=np.nan)
             # add new freq columns to frame
-            
             data_table[collist] = pd.DataFrame(frequencies, index=data_table.index)
 
             # reset temp-storage array
             del self.temp_list[:]
             
-
         
         return data_table

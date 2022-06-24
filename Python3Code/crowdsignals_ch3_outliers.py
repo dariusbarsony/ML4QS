@@ -18,9 +18,9 @@ from pathlib import Path
 import argparse
 
 # Set up file names and locations.
-DATA_PATH = Path('./intermediate_datafiles/')
-DATASET_FNAME = 'chapter2_result.csv'
-RESULT_FNAME = 'chapter3_result_outliers.csv'
+DATA_PATH = Path('./FinalAssignment/')
+DATASET_FNAME = 'ch2_result.csv'
+RESULT_FNAME = 'ch3_result_outliers.csv'
 
 def print_flags():
     """
@@ -44,7 +44,6 @@ def main():
 
     # We'll create an instance of our visualization class to plot the results.
     DataViz = VisualizeDataset(__file__)
-
 
 
     # Step 1: Let us see whether we have some outliers we would prefer to remove.
@@ -105,7 +104,7 @@ def main():
                 print('Skipping.')
 
     elif FLAGS.mode == 'final':
-
+                
         # We use Chauvenet's criterion for the final version and apply it to all but the label data...
         for col in [c for c in dataset.columns if not 'label' in c]:
 

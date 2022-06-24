@@ -22,6 +22,7 @@ class LowPassFilter:
         cut = cutoff_frequency / nyq
 
         b, a = butter(order, cut, btype='low', output='ba', analog=False)
+        
         if phase_shift:
             data_table[col + '_lowpass'] = filtfilt(b, a, data_table[col])
         else:

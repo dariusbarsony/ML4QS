@@ -48,7 +48,7 @@ class CreateDataset:
 
         print(f'Reading data from {file}')
         dataset = pd.read_csv(self.base_dir / file, skipinitialspace=True)
-        
+
         # remove all from new window column that are yes
         dataset = dataset[dataset['new_window'] == 'no']
 
@@ -56,10 +56,12 @@ class CreateDataset:
         dataset[timestamp_col] = dataset["raw_timestamp_part_1"].astype(str) + dataset["raw_timestamp_part_2"].astype(str).str[:3] + '000000'
 
         dataset[timestamp_col] = pd.to_numeric(dataset[timestamp_col])
-        
+
         # Convert timestamps to dates
         dataset[timestamp_col] = pd.to_datetime(dataset[timestamp_col])
-        
+
+        dataset = dataset.sort_values(by=timestamp_col, ascending=True)
+
         # Create a table based on the times found in the dataset
         if self.data_table is None:
             self.create_dataset(min(dataset[timestamp_col]), max(dataset[timestamp_col]), value_cols, prefix)
@@ -139,18 +141,18 @@ class CreateDataset:
             relevant_dataset_cols.extend([col for col in cols if id in col])
 
         return relevant_dataset_cols
-    
-    def split_dataset(self, file, identifier_col): 
+
+    def split_dataset(self, file, identifier_col):
 
         print(f'Reading data from {file}')
 
         dataset = pd.read_csv(self.base_dir / file)
         unique_vals = dataset.user_name.unique()
-        
+
         for v in unique_vals:
 
             _dataset = dataset.loc[dataset[identifier_col] == v]
-            RESULT_FNAME = str(v) + '.csv' 
+            RESULT_FNAME = str(v) + '.csv'
             _dataset.to_csv(self.base_dir / RESULT_FNAME, index=False)
 
     def add_zero_measurements(self, file, start_timestamp_col, end_timestamp_col, value_col):
@@ -161,11 +163,11 @@ class CreateDataset:
 
         last_datapoint = dataset[end_timestamp_col][dataset.shape[0] - 1]
         i = 0
-        
+
         while dataset[end_timestamp_col][i+1] != last_datapoint:
 
-            df2 = pd.DataFrame(np.insert(dataset.values, i+1, 
-                values=[dataset[end_timestamp_col][i], 
+            df2 = pd.DataFrame(np.insert(dataset.values, i+1,
+                values=[dataset[end_timestamp_col][i],
                     dataset[start_timestamp_col][i+1], 0], axis=0))
 
             df2.columns = dataset.columns
@@ -200,12 +202,12 @@ class CreateDataset:
 
         dataset['timestamps'] = pd.to_numeric(dataset['timestamps'])
 
+        dataset = dataset.sort_values(by='timestamps', ascending=True)
+
         labels = pd.DataFrame(columns=['label_start', 'label_end', 'label'], dtype=int)
 
         for label in dataset[classe].unique():
-            labels.loc[len(labels.index)] = [dataset[dataset[classe] == label]['timestamps'].iloc[0], 
+            labels.loc[len(labels.index)] = [dataset[dataset[classe] == label]['timestamps'].iloc[0],
                 dataset[dataset[classe] == label]['timestamps'].tail(1).iloc[0], label]
-        
-        labels.to_csv(self.base_dir / 'labels.csv', index=False)
-            
 
+        labels.to_csv(self.base_dir / 'labels.csv', index=False)

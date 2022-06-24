@@ -18,7 +18,7 @@ import sys
 
 # Chapter 2: Initial exploration of the dataset.
 
-DATASET_PATH = Path('./datasets/data_personal/')
+DATASET_PATH = Path('./datasets/final_assignment/')
 RESULT_PATH = Path('./FinalAssignment/')
 RESULT_FNAME = 'part2.csv'
 
@@ -60,8 +60,11 @@ for milliseconds_per_instance in GRANULARITIES:
     # We add the labels provided by the users. These are categorical events that might overlap. We add them
     # as binary attributes (i.e. add a one to the attribute representing the specific value for the label if it
     # occurs within an interval).
-    # dataset.add_event_dataset('labels.csv', 'label_start', 'label_end', 'label', 'binary')
-    #
+
+    dataset.create_label_file('pml-training.csv', 'raw_timestamp_part_1', 'raw_timestamp_part_2', 'classe')
+
+    # dataset.add_event_dataset('pml-training.csv', 'raw_timestamp_part_1', 'raw_timestamp_part_2', 'classe', 'binary')
+
     # # We add the amount of light sensed by the phone (continuous numerical measurements) and aggregate by averaging
     # dataset.add_numerical_dataset('light_phone.csv', 'timestamps', ['lux'], 'avg', 'light_phone_')
     #

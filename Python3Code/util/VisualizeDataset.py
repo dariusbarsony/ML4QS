@@ -84,7 +84,6 @@ class VisualizeDataset:
             min_values = []
 
 
-
             # Pass through the relevant columns.
             for j in range(0, len(relevant_cols)):
                 # Create a mask to ignore the NaN and Inf values when plotting:
@@ -104,8 +103,8 @@ class VisualizeDataset:
             xar[i].legend(relevant_cols, fontsize='xx-small', numpoints=1, loc='upper center',
                           bbox_to_anchor=(0.5, 1.3), ncol=len(relevant_cols), fancybox=True, shadow=True)
 
-            xar[i].set_ylim([min(min_values) - 0.1*(max(max_values) - min(min_values)),
-                             max(max_values) + 0.1*(max(max_values) - min(min_values))])
+            # xar[i].set_ylim([min(min_values) - 0.1*(max(max_values) - min(min_values)),
+            #                  max(max_values) + 0.1*(max(max_values) - min(min_values))])
 
         # Make sure we get a nice figure with only a single x-axis and labels there.
         plt.setp([a.get_xticklabels() for a in f.axes[:-1]], visible=False)
@@ -299,9 +298,11 @@ class VisualizeDataset:
         plt.title('Hierarchical Clustering Dendrogram')
         plt.xlabel('time points')
         plt.ylabel('distance')
-        times = dataset.index.strftime('%H:%M:%S')
+
+        # times = dataset.index.strftime('%H:%M:%S')
+
         #dendrogram(linkage,truncate_mode='lastp',p=10, show_leaf_counts=True, leaf_rotation=90.,leaf_font_size=12.,show_contracted=True, labels=times)
-        dendrogram(linkage,truncate_mode='lastp',p=16, show_leaf_counts=True, leaf_rotation=45.,leaf_font_size=8.,show_contracted=True, labels=times)
+        dendrogram(linkage,truncate_mode='lastp',p=16, show_leaf_counts=True, leaf_rotation=45.,leaf_font_size=8.,show_contracted=True)
         self.save(plt)
         plt.show()
 
