@@ -24,7 +24,7 @@ from Chapter3.KalmanFilters import KalmanFilters
 DATA_PATH = Path('./FinalAssignment/')    
 DATASET_FNAME = 'ch3_result_outliers.csv'
 RESULT_FNAME = 'ch3_result.csv'
-ORIG_DATASET_FNAME = 'ch2_result.csv'
+# ORIG_DATASET_FNAME = 'chapter2_result_250.csv'
 
 def print_flags():
     """
@@ -145,6 +145,10 @@ def main():
              'pitch_belt', 'magnet_dumbbell_z', 'roll_forearm', 'accel_dumbbell_y', 'roll_dumbbell', 'accel_dumbbell_y', 
                 'accel_belt_x','accel_belt_y','accel_belt_z']
 
+
+    # list of new measurements
+#    ['yaw_dumbbell', 'pitch_dumbbell', 'roll_dumbbell', 'magnet_forearm_z', 'magnet_arm_z', 'magnet_arm_y', 'magnet_arm_x', 'accel_arm_z', 'accel_arm_y', 'accel_arm_x', 'gyros_arm_z', 'gyros_arm_y', 'gyros_arm_x', 'total_accel_arm', 'yaw_arm', 'pitch_arm', 'roll_arm', 'total_accel_dumbbell', 'gyros_dumbbell_x', 'gyros_dumbbell_y', 'gyros_dumbbell_z', 'magnet_forearm_y', 'magnet_forearm_x', 'accel_forearm_z', 'accel_forearm_y', 'accel_forearm_x', 'gyros_forearm_z', 'gyros_forearm_y', 'gyros_forearm_x', 'magnet_belt_z', 'total_accel_forearm', 'pitch_forearm', 'roll_forearm', 'magnet_dumbbell_z', 'magnet_dumbbell_y', 'magnet_dumbbell_x', 'accel_dumbbell_z', 'accel_dumbbell_y', 'accel_dumbbell_x', 'yaw_forearm', 'magnet_belt_y', 'accel_belt_z', 'total_accel_belt', 'magnet_belt_x', 'pitch_belt', 'num_window', 'roll_belt', 'gyros_belt_x', 'gyros_belt_y', 'gyros_belt_z', 'accel_belt_x', 'accel_belt_y', 'yaw_belt']
+        
         # Let us apply a lowpass filter and reduce the importance of the data above 1.5 Hz
 
         # Determine the sampling frequency.

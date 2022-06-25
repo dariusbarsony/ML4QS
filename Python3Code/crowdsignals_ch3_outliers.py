@@ -19,7 +19,7 @@ import argparse
 
 # Set up file names and locations.
 DATA_PATH = Path('./FinalAssignment/')
-DATASET_FNAME = 'ch2_result.csv'
+DATASET_FNAME = 'chapter2_result_250.csv'
 RESULT_FNAME = 'ch3_result_outliers.csv'
 
 def print_flags():

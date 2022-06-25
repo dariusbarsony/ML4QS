@@ -61,7 +61,6 @@ def main():
          #please look in Chapter4 TemporalAbstraction.py to look for more aggregation methods or make your own.     
         
         for ws in window_sizes:
-                   
             dataset = NumAbs.abstract_numerical(dataset, ['acc_phone_x'], ws, 'mean')
             dataset = NumAbs.abstract_numerical(dataset, ['acc_phone_x'], ws, 'std')
 
