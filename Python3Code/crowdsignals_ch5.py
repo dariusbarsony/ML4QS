@@ -26,15 +26,10 @@ import argparse
 
 def main():
 
-    # As usual, we set our program constants, read the input file and initialize a visualization object.
-    # DATA_PATH = Path('./intermediate_datafiles/')
-    # DATASET_FNAME = 'chapter4_result.csv'
-    # RESULT_FNAME = 'chapter5_result.csv'
-
     # own dataset
-    DATA_PATH = Path('./results/')
-    DATASET_FNAME = 'processed_ch4.csv'
-    RESULT_FNAME = 'processed_ch5.csv'
+    DATA_PATH = Path('./FinalAssignment/')
+    DATASET_FNAME = 'ch4_result.csv'
+    RESULT_FNAME = 'ch5_result.csv'
 
     try:
         dataset = pd.read_csv(DATA_PATH / DATASET_FNAME, index_col=0)
@@ -92,7 +87,7 @@ def main():
 
             # for personal data
             dataset_cluster = clusteringNH.k_medoids_over_instances(copy.deepcopy(
-                dataset), ['x', 'y', 'z'], k, 'default', 20, n_inits=10)
+                dataset), ['accel_belt_x','accel_belt_y','accel_belt_z'], k, 'default', 20, n_inits=10)
 
             silhouette_score = dataset_cluster['silhouette'].mean()
             print(f'silhouette = {silhouette_score}')
@@ -107,18 +102,16 @@ def main():
         k = k_values[np.argmax(silhouette_values)]
         print(f'Highest K-Medoids silhouette score: k = {k}')
 
-        # dataset_kmed = clusteringNH.k_medoids_over_instances(copy.deepcopy(dataset), [
-        #                                                      'acc_phone_x', 'acc_phone_y', 'acc_phone_z'], k, 'default', 20, n_inits=50)
-
         dataset_kmed = clusteringNH.k_medoids_over_instances(copy.deepcopy(dataset), [
-                                                             'x', 'y', 'z'], k, 'default', 20, n_inits=50)
+                                                             'accel_belt_x','accel_belt_y','accel_belt_z'], k, 'default', 20, n_inits=50)
 
         DataViz.plot_clusters_3d(dataset_kmed, [
-                                 'x', 'y', 'z'], 'cluster', ['label'])
+                                 'accel_belt_x','accel_belt_y','accel_belt_z'], 'cluster', ['label'])
 
         DataViz.plot_silhouette(dataset_kmed, 'cluster', 'silhouette')
+
         util.print_latex_statistics_clusters(dataset_kmed, 'cluster', [
-                                             'x', 'y', 'z'], 'label')
+                                             'accel_belt_x','accel_belt_y','accel_belt_z'], 'label')
 
     # And the hierarchical clustering is the last one we try
     if FLAGS.mode == 'agglomerative':
@@ -135,7 +128,7 @@ def main():
             #                                                               'acc_phone_x', 'acc_phone_y', 'acc_phone_z'], k, 'euclidean', use_prev_linkage=True, link_function='ward')
 
             dataset, l = clusteringH.agglomerative_over_instances(dataset, [
-                                                                          'x', 'y', 'z'], k, 'euclidean', use_prev_linkage=True, link_function='ward')
+                                                                          'accel_belt_x','accel_belt_y','accel_belt_z'], k, 'euclidean', use_prev_linkage=True, link_function='ward')
             silhouette_score = dataset['silhouette'].mean()
             print(f'silhouette = {silhouette_score}')
             silhouette_values.append(silhouette_score)
@@ -150,11 +143,11 @@ def main():
         # And we select the outcome dataset of the knn clustering....
         clusteringNH = NonHierarchicalClustering()
 
-        dataset = clusteringNH.k_means_over_instances(dataset, ['gyr_phone_x', 'gyr_phone_y', 'gyr_phone_z'], FLAGS.k, 'default', 50, 50)
-        DataViz.plot_clusters_3d(dataset, ['gyr_phone_x', 'gyr_phone_y', 'gyr_phone_z'], 'cluster', ['label'])
+        dataset = clusteringNH.k_means_over_instances(dataset, ['accel_belt_x','accel_belt_y','accel_belt_z'], FLAGS.k, 'default', 50, 50)
+        DataViz.plot_clusters_3d(dataset, ['accel_belt_x','accel_belt_y','accel_belt_z'], 'cluster', ['label'])
         DataViz.plot_silhouette(dataset, 'cluster', 'silhouette')
         util.print_latex_statistics_clusters(
-            dataset, 'cluster', ['gyr_phone_x', 'gyr_phone_y', 'gyr_phone_z'], 'label')
+            dataset, 'cluster', ['accel_belt_x','accel_belt_y','accel_belt_z'], 'label')
         del dataset['silhouette']
 
         dataset.to_csv(DATA_PATH / RESULT_FNAME)

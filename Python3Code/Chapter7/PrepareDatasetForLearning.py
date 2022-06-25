@@ -53,6 +53,7 @@ class PrepareDatasetForLearning:
     # training_frac of the data for training and the last 1-training_frac for testing. Otherwise, we select points randomly.
     # We return a training set, the labels of the training set, and the same for a test set. We can set the random seed
     # to make the split reproducible.
+
     def split_single_dataset_classification(self, dataset, class_labels, matching, training_frac, filter=True, temporal=False, random_state=0):
         # Create a single class column if we have the 'like' option.
         if matching == 'like':

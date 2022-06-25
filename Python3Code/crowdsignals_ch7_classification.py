@@ -29,15 +29,10 @@ from util import util
 from util.VisualizeDataset import VisualizeDataset
 
 # Read the result from the previous chapter, and make sure the index is of the type datetime.
-# DATA_PATH = Path('./intermediate_datafiles/')
-# DATASET_FNAME = 'chapter5_result.csv'
-# RESULT_FNAME = 'chapter7_classification_result.csv'
-# EXPORT_TREE_PATH = Path('./figures/crowdsignals_ch7_classification/')
-
-DATA_PATH = Path('./results/')
-DATASET_FNAME = 'processed_ch4.csv'
-RESULT_FNAME = 'chapter7_classification_result.csv'
-EXPORT_TREE_PATH = Path('./figures/crowdsignals_ch7_classification/')
+DATA_PATH = Path('./FinalAssignment/')
+DATASET_FNAME = 'ch5_result.csv'
+RESULT_FNAME = 'ch7_classification_result.csv'
+EXPORT_TREE_PATH = Path('./figures/final_ch7_classification/')
 
 # Next, we declare the parameters we'll use in the algorithms.
 N_FORWARD_SELECTION = 50
@@ -61,18 +56,13 @@ DataViz = VisualizeDataset(__file__)
 
 prepare = PrepareDatasetForLearning()
 
-train_X, test_X, train_y, test_y = prepare.split_single_dataset_classification(dataset, ['textwalking'], 'like', 0.7, filter=True, temporal=False)
+train_X, test_X, train_y, test_y = prepare.split_single_dataset_classification(dataset, ['label'], 'like', 0.7, filter=True, temporal=False)
 
 print('Training set length is: ', len(train_X.index))
 print('Test set length is: ', len(test_X.index))
 
 # Select subsets of the features that we will consider:
-
-# basic_features = ['acc_phone_x','acc_phone_y','acc_phone_z','acc_watch_x','acc_watch_y','acc_watch_z','gyr_phone_x','gyr_phone_y','gyr_phone_z','gyr_watch_x','gyr_watch_y','gyr_watch_z',
-#                   'hr_watch_rate', 'light_phone_lux','mag_phone_x','mag_phone_y','mag_phone_z','mag_watch_x','mag_watch_y','mag_watch_z','press_phone_pressure']
-
-basic_features= ['acc_x','acc_y','acc_z','grav_x','grav_y','grav_z','gyr_x','gyr_y','gyr_z','magn_x','magn_y','magn_z']
-
+basic_features= ['num_window', 'roll_belt', 'pitch_forearm', 'yaw_belt', 'magnet_dumbbell_z','pitch_belt', 'magnet_dumbbell_z', 'roll_forearm', 'accel_dumbbell_y', 'roll_dumbbell', 'accel_dumbbell_y', 'accel_belt_x','accel_belt_y','accel_belt_z']
 pca_features = ['pca_1','pca_2','pca_3','pca_4','pca_5','pca_6','pca_7']
 
 time_features = [name for name in dataset.columns if '_temp_' in name]
@@ -89,7 +79,6 @@ features_after_chapter_5 = list(set().union(basic_features, pca_features, time_f
 
 
 # # First, let us consider the performance over a selection of features:
-
 fs = FeatureSelectionClassification()
 
 features, ordered_features, ordered_scores = fs.forward_selection(N_FORWARD_SELECTION,
@@ -104,10 +93,6 @@ DataViz.plot_xy(x=[range(1, N_FORWARD_SELECTION+1)], y=[ordered_scores],
 
 
 # based on python2 features, slightly different.
-# selected_features = ['acc_phone_y_freq_0.0_Hz_ws_40', 'press_phone_pressure_temp_mean_ws_120', 'gyr_phone_x_temp_std_ws_120',
-#                      'mag_watch_y_pse', 'mag_phone_z_max_freq', 'gyr_watch_y_freq_weighted', 'gyr_phone_y_freq_1.0_Hz_ws_40',
-#                      'acc_phone_x_freq_1.9_Hz_ws_40', 'mag_watch_z_freq_0.9_Hz_ws_40', 'acc_watch_y_freq_0.5_Hz_ws_40']
-
 selected_features = ['acc_y_freq_0.0_Hz_ws_40', 'gyr_x_temp_std_ws_120',
                      'magn_y_pse', 'magn_z_max_freq', 'gyr_y_freq_weighted', 'gyr_y_freq_1.0_Hz_ws_40',
                      'acc_x_freq_1.9_Hz_ws_40', 'magn_z_freq_0.9_Hz_ws_40', 'acc_y_freq_0.5_Hz_ws_40']
