@@ -82,6 +82,7 @@ for milliseconds_per_instance in GRANULARITIES:
     # Plot the data
     DataViz = VisualizeDataset(__file__)
 
+    dataset = dataset.astype(float)
     # Boxplot
     DataViz.plot_dataset_boxplot(dataset, ["accel_belt_x","accel_belt_y","accel_belt_z"])
 
