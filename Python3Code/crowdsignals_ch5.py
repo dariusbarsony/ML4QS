@@ -143,7 +143,8 @@ def main():
         # And we select the outcome dataset of the knn clustering....
         clusteringNH = NonHierarchicalClustering()
 
-        dataset = clusteringNH.k_means_over_instances(dataset, ['accel_belt_x','accel_belt_y','accel_belt_z'], FLAGS.k, 'default', 50, 50)
+        dataset = clusteringNH.k_means_over_instances(dataset, ['accel_belt_x','accel_belt_y','accel_belt_z'], 5, 'default', 50, 50)
+
         DataViz.plot_clusters_3d(dataset, ['accel_belt_x','accel_belt_y','accel_belt_z'], 'cluster', ['label'])
         DataViz.plot_silhouette(dataset, 'cluster', 'silhouette')
         util.print_latex_statistics_clusters(

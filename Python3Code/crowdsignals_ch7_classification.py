@@ -140,7 +140,7 @@ performance_test = []
 for no_points_leaf in leaf_settings:
 
     class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.decision_tree(
-        train_X[selected_features], train_y, test_X[selected_features], min_samples_leaf=no_points_leaf,
+        train_X[features_after_chapter_5], train_y, test_X[features_after_chapter_5], min_samples_leaf=no_points_leaf,
         gridsearch=False, print_model_details=False)
 
     performance_training.append(eval.accuracy(train_y, class_train_y))
@@ -153,7 +153,7 @@ DataViz.plot_xy(x=[leaf_settings, leaf_settings], y=[performance_training, perfo
 # So yes, it is important :) Therefore we perform grid searches over the most important parameters, and do so by means
 # of cross validation upon the training set.
 
-possible_feature_sets = [basic_features, features_after_chapter_3, features_after_chapter_4, features_after_chapter_5, selected_features]
+possible_feature_sets = [basic_features, features_after_chapter_3, features_after_chapter_4, features_after_chapter_5, features_after_chapter_5]
 feature_names = ['initial set', 'Chapter 3', 'Chapter 4', 'Chapter 5', 'Selected features']
 N_KCV_REPEATS = 5
 
@@ -245,12 +245,12 @@ DataViz.plot_performances_classification(['NN', 'RF','SVM', 'KNN', 'DT', 'NB'], 
 # # And we study two promising ones in more detail. First, let us consider the decision tree, which works best with the
 # # selected features.
 
-class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.decision_tree(train_X[selected_features], train_y, test_X[selected_features],
+class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.decision_tree(train_X[features_after_chapter_5], train_y, test_X[features_after_chapter_5],
                                                                                            gridsearch=True,
                                                                                            print_model_details=True, export_tree_path=EXPORT_TREE_PATH)
 
 class_train_y, class_test_y, class_train_prob_y, class_test_prob_y = learner.random_forest(
-    train_X[selected_features], train_y, test_X[selected_features],
+    train_X[features_after_chapter_5], train_y, test_X[features_after_chapter_5],
     gridsearch=True, print_model_details=True)
 
 test_cm = eval.confusion_matrix(test_y, class_test_y, class_train_prob_y.columns)

@@ -39,7 +39,8 @@ class PrepareDatasetForLearning:
             # If we have exactly one true class column, we can assign that value,
             # otherwise we keep the default class.
             if sum_values[i] == 1:
-                dataset.iloc[i, dataset.columns.get_loc(self.class_col)] = dataset[labels].iloc[i].idxmax(axis=1)
+                # print(dataset[labels].iloc[i].idxmax(axis=0))
+                dataset.iloc[i, dataset.columns.get_loc(self.class_col)] = dataset[labels].iloc[i].idxmax(axis=0)
 
         # And remove our old binary columns.
         dataset = dataset.drop(labels, axis=1)
@@ -60,18 +61,19 @@ class PrepareDatasetForLearning:
             dataset = self.assign_label(dataset, class_labels)
             class_labels = self.class_col
             print(class_labels)
-            
+
         elif len(class_labels) == 1:
             class_labels = class_labels[0]
 
         # Filer NaN is desired and those for which we cannot determine the class should be removed.
         if filter:
             dataset = dataset.dropna()
-            # dataset = dataset[dataset['class'] != self.default_label]
+            dataset = dataset[dataset['class'] != self.default_label]
 
         # The features are the ones not in the class label.
         features = [dataset.columns.get_loc(x) for x in dataset.columns if x not in class_labels]
         class_label_indices = [dataset.columns.get_loc(x) for x in dataset.columns if x in class_labels]
+        print(class_label_indices)
 
         # For temporal data, we select the desired fraction of training data from the first part
         # and use the rest as test set.
@@ -84,7 +86,7 @@ class PrepareDatasetForLearning:
         # For non temporal data we use a standard function to randomly split the dataset.
         else:
             training_set_X, test_set_X, training_set_y, test_set_y = train_test_split(dataset.iloc[:,features],
-                                                                                      dataset.iloc[:,class_label_indices], test_size=(1-training_frac), stratify=dataset.iloc[:,class_label_indices], random_state=random_state)
+                                                                                      dataset.iloc[:,class_label_indices], test_size=(1-training_frac), random_state=random_state)
         return training_set_X, test_set_X, training_set_y, test_set_y
 
     def split_single_dataset_regression_by_time(self, dataset, target, start_training, end_training, end_test):
